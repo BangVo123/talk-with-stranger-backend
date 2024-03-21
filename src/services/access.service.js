@@ -24,6 +24,14 @@ class AccessService {
 
     if (!findUser) throw new NotFoundError("You are not register");
 
+    const foundOtp = await db.PasswordResetToken.findOne({
+      where: {
+        user_email: foundUser.user_email,
+      },
+    });
+
+    if (foundOtp) await foundOtp.destroy();
+
     let otp = "";
     for (let i = 0; i < 6; i++) {
       otp += Math.floor(Math.random() * 10);
