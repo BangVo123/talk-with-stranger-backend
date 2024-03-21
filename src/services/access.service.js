@@ -26,7 +26,7 @@ class AccessService {
 
     const foundOtp = await db.PasswordResetToken.findOne({
       where: {
-        user_email: foundUser.user_email,
+        user_email: findUser.user_email,
       },
     });
 
@@ -36,11 +36,12 @@ class AccessService {
     for (let i = 0; i < 6; i++) {
       otp += Math.floor(Math.random() * 10);
     }
-    console.log({ otp });
+
     const newPasswordReset = await db.PasswordResetToken.create({
       user_email: email,
       token: otp.toString(),
     });
+
     sendMail(
       {
         from: process.env.EMAIL,
