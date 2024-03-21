@@ -5,14 +5,91 @@ const {
   BadRequestError,
   AuthFailureError,
   ForbiddenError,
+  NotFoundError,
 } = require("../core/error.response");
 const db = require("../db/init.mysql");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { createTokensPair } = require("../utils/auth.utils");
 const { pickDataInfo } = require("../utils");
+const { sendMail } = require("./mail.service");
 
 class AccessService {
+  static forgotPassword = async (email) => {
+    const findUser = await db.User.findOne({
+      where: {
+        user_email: email,
+      },
+    });
+
+    if (!findUser) throw new NotFoundError("You are not register");
+
+    const foundOtp = await db.PasswordResetToken.findOne({
+      where: {
+        user_email: foundUser.user_email,
+      },
+    });
+
+    if (foundOtp) await foundOtp.destroy();
+
+    let otp = "";
+    for (let i = 0; i < 6; i++) {
+      otp += Math.floor(Math.random() * 10);
+    }
+    console.log({ otp });
+    const newPasswordReset = await db.PasswordResetToken.create({
+      user_email: email,
+      token: otp.toString(),
+    });
+    sendMail(
+      {
+        from: process.env.EMAIL,
+        to: findUser.user_email,
+        subject:
+          "This is your reset password OTP. It will expired after 10 minutes",
+        text: `Your OTP is ${otp}`,
+      },
+      {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+      }
+    );
+    return null;
+  };
+
+  static resetPassword = async ({ otp, email, password }) => {
+    const foundUser = await db.User.findOne({
+      where: {
+        user_email: email,
+      },
+    });
+
+    if (!foundUser) throw new NotFoundError("You are not register");
+
+    const foundOtp = await db.PasswordResetToken.findOne({
+      where: {
+        user_email: foundUser.user_email,
+      },
+    });
+
+    if (!foundOtp) throw new BadRequestError("Your OTP is not valid");
+
+    if (!foundOtp.token === otp) throw new BadRequestError("Wrong OTP");
+    if (new Date() > new Date(foundOtp.expiredAt))
+      throw new BadRequestError("Your OTP is expired");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await foundUser.update({
+      user_password: hashedPassword,
+    });
+
+    await foundUser.save();
+
+    await foundOtp.destroy();
+
+    return null;
+  };
+
   static refreshTheToken = async ({ refreshToken, userInfo, keyToken }) => {
     if (!refreshToken) throw new BadRequestError("Refresh token not provided");
 
@@ -78,9 +155,11 @@ class AccessService {
           { transaction: t }
         );
 
-        needUpdateKeyToken.update({ refresh_token: newTokenPair.refreshToken });
+        await needUpdateKeyToken.update({
+          refresh_token: newTokenPair.refreshToken,
+        });
 
-        needUpdateKeyToken.save();
+        await needUpdateKeyToken.save();
       });
     } catch (err) {
       throw new BadRequestError("Something went wrong");

@@ -36,6 +36,21 @@ class AccessController {
       }),
     }).send(res);
   };
+
+  forgotPassword = async (req, res, next) => {
+    new SuccessResponse({
+      message:
+        "We have sent a verification link to your email, please check your email",
+      metadata: await AccessService.forgotPassword(req.body.email),
+    }).send(res);
+  };
+
+  resetPassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Password successfully update",
+      metadata: await AccessService.resetPassword(req.body),
+    }).send(res);
+  };
 }
 
 module.exports = new AccessController();
