@@ -7,6 +7,14 @@ const AccessController = require("../../../controller/access.controller");
 const authentication = require("../../../middlewares/authentication");
 const asyncHandler = require("../../../helpers/asyncHandler");
 
+router.post(
+  "/users/forgotPassword",
+  asyncHandler(AccessController.forgotPassword)
+);
+router.post(
+  "/users/resetPassword",
+  asyncHandler(AccessController.resetPassword)
+);
 router.post("/users/signup", asyncHandler(AccessController.signup));
 router.post("/users/signin", asyncHandler(AccessController.signin));
 
