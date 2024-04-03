@@ -24,6 +24,14 @@ module.exports = (sequelize, { DataTypes }) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
+      user_status: {
+        type: DataTypes.ENUM("ACTIVE", "BLOCKED"),
+        default: "ACTIVE",
+      },
+      isDeleted: {
+        type: DataTypes.BOOLEAN,
+        default: false,
+      },
       user_gender: {
         type: DataTypes.ENUM("male", "female", "other"),
         allowNull: false,

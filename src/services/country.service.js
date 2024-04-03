@@ -28,8 +28,6 @@ class CountryService {
   }) => {
     if (!countryName || !countryCode || !countryIsoCode)
       throw new BadRequestError("Invalid country");
-    //Check exists
-    console.log({ countryCode, countryIsoCode, countryName });
     const foundCountry = await db.Country.findOne({
       where: {
         [Op.or]: [

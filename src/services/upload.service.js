@@ -16,7 +16,7 @@ const { storage } = require("../firebase");
 class UploadService {
   static uploadOne = async ({ file, folderName, fileName }) => {
     const storageRef = ref(storage, `${folderName}/${fileName}`);
-    const metadata = {
+    const metadata = { 
       contentType: file.mimeType,
     };
     const snapshot = await uploadBytesResumable(
