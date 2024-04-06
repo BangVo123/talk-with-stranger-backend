@@ -50,10 +50,11 @@ class FriendService {
 
     if (!foundFriend) throw new BadRequestError("Your friend not found");
 
+    foundFriend.is_block = true;
     if (foundFriend.sender_id == userId) {
-      foundFriend.block_status = "blockBySender";
+      foundFriend.block_by = userId;
     } else {
-      foundFriend.block_status = "blockByReceiver";
+      foundFriend.block_by = friendId;
     }
     await foundFriend.save();
 
@@ -74,18 +75,12 @@ class FriendService {
 
     if (!foundFriend) throw new BadRequestError("Your friend not found");
 
-    const getBlockStatus = foundFriend.block_status;
-    if (getBlockStatus == "notBlock")
+    if (!foundFriend.is_block) {
       throw new BadRequestError("Your friend is not block");
-    else if (getBlockStatus == "blockBySender") {
-      if (foundFriend.sender_id == userId) {
-        foundFriend.block_status = "notBlock";
-      } else {
-        throw new BadRequestError("You are not blocker");
-      }
     } else {
-      if (foundFriend.receiver_id == userId) {
-        foundFriend.block_status = "notBlock";
+      if (foundFriend.block_by == userId) {
+        foundFriend.is_block = false;
+        foundFriend.block_by = null;
       } else {
         throw new BadRequestError("You are not blocker");
       }
