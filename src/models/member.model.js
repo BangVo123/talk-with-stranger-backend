@@ -1,5 +1,8 @@
 "use strict";
 
+const { BadRequestError, ForbiddenError } = require("../core/error.response");
+const db = require("../db/init.mysql");
+
 const TABLE_NAME = "member";
 
 module.exports = (sequelize, { DataTypes }) => {
@@ -33,6 +36,28 @@ module.exports = (sequelize, { DataTypes }) => {
     },
     {
       tableName: TABLE_NAME,
+      hooks: {
+        beforeCreate: async function (record) {
+          const foundConservation = await db.Conservation.findOne({
+            where: record.conservation,
+          });
+
+          if (!foundConservation)
+            throw new BadRequestError("Couldn't find a reservation");
+
+          if (foundConservation.type === "one_to_one") {
+            const currentMemsCount = await db.Member.count({
+              where: {
+                conservation: foundConservation.id,
+              },
+            });
+
+            if (currentMemsCount === 2) {
+              throw new ForbiddenError("Can't not add more than 2 members");
+            }
+          }
+        },
+      },
     }
   );
 

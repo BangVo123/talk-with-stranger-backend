@@ -42,7 +42,7 @@ class AccessService {
       token: otp.toString(),
     });
 
-    sendMail(
+    await sendMail(
       {
         from: process.env.EMAIL,
         to: findUser.user_email,
@@ -55,6 +55,7 @@ class AccessService {
         pass: process.env.EMAIL_PASSWORD,
       }
     );
+
     return null;
   };
 
@@ -80,6 +81,7 @@ class AccessService {
       throw new BadRequestError("Your OTP is expired");
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     await foundUser.update({
       user_password: hashedPassword,
     });

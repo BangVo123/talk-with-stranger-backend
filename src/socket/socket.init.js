@@ -1,7 +1,6 @@
 "use strict";
 
 const socketRouter = require("../routes/socket/index");
-const authentication = require(".././middlewares/authentication");
 
 module.exports = (io) => {
   const onConnection = function (socket) {

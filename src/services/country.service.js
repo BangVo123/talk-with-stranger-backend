@@ -37,9 +37,9 @@ class CountryService {
         ],
       },
     });
+
     if (foundCountry) throw new BadRequestError("Country is exists");
-    console.log({ countryCode, countryIsoCode, countryName });
-    //Add new country
+
     try {
       const newCountry = await db.Country.create({
         country_name: countryName,
