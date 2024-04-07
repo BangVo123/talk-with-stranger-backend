@@ -36,9 +36,13 @@ module.exports = (sequelize, { DataTypes }) => {
       receiver_nickname: {
         type: DataTypes.STRING,
       },
-      block_status: {
-        type: DataTypes.ENUM("notBlock", "blockBySender", "blockByReceiver"),
-        default: "notBlock",
+      is_block: {
+        type: DataTypes.BOOLEAN,
+        default: false,
+      },
+      block_by: {
+        type: DataTypes.UUID,
+        default: null,
       },
     },
     {
