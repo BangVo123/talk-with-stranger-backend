@@ -8,7 +8,6 @@ const path = require("path");
 const CountryService = require("./country.service");
 
 class UserService {
-  //param of async is accessToken (I don't know it is an id of token or accessToken)
   static getUserInfo = async (userID) => {
     if (!userID) throw new BadRequestError("Invalid userID");
 
