@@ -6,6 +6,7 @@ const { deepCleanObj, removeKeys } = require("../utils");
 const UploadService = require("./upload.service");
 const path = require("path");
 const CountryService = require("./country.service");
+const { Op } = require("sequelize");
 
 class UserService {
   static getUserInfo = async (userID) => {
@@ -63,7 +64,7 @@ class UserService {
     });
 
     foundUser.update({ user_background: url });
-
+    console.log(foundUser.user_country);
     foundUser.save();
 
     return url;

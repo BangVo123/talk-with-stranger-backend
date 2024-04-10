@@ -23,7 +23,7 @@ class FriendRequestController {
       message: "Cancel friend request success",
       metadata: await FriendRequestService.cancelFriendRequest({
         userId: req.user.userId,
-        friendRequestId: req.params.friendRequestBody,
+        friendRequestId: req.params.friendRequestId,
       }),
     }).send(res);
   };
@@ -34,7 +34,7 @@ class FriendRequestController {
       message: "Accept friend request success",
       metadata: await FriendRequestService.acceptFriendRequest({
         userId: req.user.userId,
-        friendRequestId: req.body.friendRequestBody,
+        friendRequestId: req.params.friendRequestId,
       }),
     }).send(res);
   };
@@ -45,12 +45,12 @@ class FriendRequestController {
       message: "Reject friend request success",
       metadata: await FriendRequestService.rejectFriendRequest({
         userId: req.user.userId,
-        friendRequestId: req.body.friendRequestBody,
+        friendRequestId: req.params.friendRequestId,
       }),
     }).send(res);
   };
 
-  //{userId: userId from header}
+  //userId: userId from header
   static getPendingFriendRequest = async (req, res, next) => {
     new SuccessResponse({
       message: "Get all pending friend request success",

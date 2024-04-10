@@ -24,6 +24,7 @@ class FriendRequestService {
         receiver_id: receiverId,
       },
     });
+
     if (foundFriendRequest) return null;
 
     const foundReceiver = await db.User.findOne({
@@ -34,10 +35,16 @@ class FriendRequestService {
 
     if (!foundReceiver) throw new BadRequestError("Can not find receiver");
 
+    if (foundReceiver.id === senderId)
+      throw new BadRequestError(
+        "You can not send a friend request to yourself"
+      );
+
     const newFriendRequest = await db.FriendRequest.create({
       receiver_id: receiverId,
       sender_id: senderId,
-      greeting_text: body.greetingText,
+      status: "pending",
+      greeting_text: body.greetingText || "Hello, want to make friend ?",
     });
 
     if (!newFriendRequest)
@@ -111,14 +118,12 @@ class FriendRequestService {
 
   //get pending friend request
   static getPendingFriendRequest = async (userId) => {
+    console.log("get pending friend request");
     const pendingFriendRequest = await db.FriendRequest.findAll({
       where: {
-        receiver_id: userId,
+        [Op.and]: [{ receiver_id: userId }, { status: "pending" }],
       },
     });
-
-    //not found - dont have data ro render
-    if (!pendingFriendRequest) return null;
 
     return pendingFriendRequest;
   };

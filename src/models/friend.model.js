@@ -30,20 +30,6 @@ module.exports = (sequelize, { DataTypes }) => {
         },
         onDelete: "CASCADE",
       },
-      sender_nickname: {
-        type: DataTypes.STRING,
-      },
-      receiver_nickname: {
-        type: DataTypes.STRING,
-      },
-      is_block: {
-        type: DataTypes.BOOLEAN,
-        default: false,
-      },
-      block_by: {
-        type: DataTypes.UUID,
-        default: null,
-      },
     },
     {
       tableName: TABLE_NAME,

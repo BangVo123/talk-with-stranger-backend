@@ -3,30 +3,33 @@
 const express = require("express");
 const asyncHandler = require("../../../helpers/asyncHandler");
 const FriendRequestController = require("../../../controller/friendRequest.controller");
+const authentication = require("../../../middlewares/authentication");
 const router = express.Router();
 
+router.use("/friendRequest", authentication);
+
 router.post(
-  "/sendFriendRes:/receiverId",
+  "/friendRequest/:receiverId",
   asyncHandler(FriendRequestController.sendFriendRequest)
 );
 
 router.delete(
-  "/friendRes/:friendRequestBody",
+  "/friendRequest/:friendRequestId",
   asyncHandler(FriendRequestController.cancelFriendRequest)
 );
 
-router.post(
-  "/acceptFriendRes",
+router.patch(
+  "/friendRequest/accept/:friendRequestId",
   asyncHandler(FriendRequestController.acceptFriendRequest)
 );
 
 router.patch(
-  "/friendRes",
+  "/friendRequest/reject/:friendRequestId",
   asyncHandler(FriendRequestController.rejectFriendRequest)
 );
 
 router.get(
-  "/FriendRes",
+  "/friendRequest/pending",
   asyncHandler(FriendRequestController.getPendingFriendRequest)
 );
 

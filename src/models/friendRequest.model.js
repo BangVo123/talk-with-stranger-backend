@@ -1,5 +1,7 @@
 "use strict";
 
+const { all } = require("../app");
+
 const TABLE_NAME = "friend_request";
 
 module.exports = (sequelize, { DataTypes }) => {
@@ -36,6 +38,7 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       status: {
         type: DataTypes.ENUM("pending", "accepted", "rejected"),
+        allowNull: false,
         default: "pending",
       },
     },
