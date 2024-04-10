@@ -43,7 +43,6 @@ class FriendRequestService {
     const newFriendRequest = await db.FriendRequest.create({
       receiver_id: receiverId,
       sender_id: senderId,
-      status: "pending",
       greeting_text: body.greetingText || "Hello, want to make friend ?",
     });
 
@@ -85,9 +84,7 @@ class FriendRequestService {
     if (foundFriendRequest.receiver_id != userId)
       throw new ForbiddenError("You not allow do it");
 
-    foundFriendRequest.status = "accepted";
-
-    await foundFriendRequest.save();
+    await foundFriendRequest.destroy();
 
     const newFriend = await FriendService.createFriend({
       senderId: foundFriendRequest.serder_id,
@@ -110,8 +107,7 @@ class FriendRequestService {
     if (foundFriendRequest.receiver_id != userId)
       ForbiddenError("You not allow do it");
 
-    foundFriendRequest.status = "rejected";
-    await foundFriendRequest.save();
+    await foundFriendRequest.destroy();
 
     return null;
   };
@@ -121,7 +117,7 @@ class FriendRequestService {
     console.log("get pending friend request");
     const pendingFriendRequest = await db.FriendRequest.findAll({
       where: {
-        [Op.and]: [{ receiver_id: userId }, { status: "pending" }],
+        [Op.and]: [{ receiver_id: userId }],
       },
     });
 
