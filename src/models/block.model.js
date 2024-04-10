@@ -1,12 +1,10 @@
 "use strict";
 
-const { all } = require("../app");
-
-const TABLE_NAME = "friend_request";
+const TABLE_NAME = "friend";
 
 module.exports = (sequelize, { DataTypes }) => {
-  const friendRequest = sequelize.define(
-    "FriendRequest",
+  const friend = sequelize.define(
+    "Friend",
     {
       id: {
         type: DataTypes.UUID,
@@ -14,7 +12,7 @@ module.exports = (sequelize, { DataTypes }) => {
         primaryKey: true,
         allowNull: false,
       },
-      sender_id: {
+      blocker_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -23,7 +21,7 @@ module.exports = (sequelize, { DataTypes }) => {
         },
         onDelete: "CASCADE",
       },
-      receiver_id: {
+      blocked_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -32,9 +30,12 @@ module.exports = (sequelize, { DataTypes }) => {
         },
         onDelete: "CASCADE",
       },
-      greeting_text: {
-        type: DataTypes.STRING,
-        default: "Hello, want to make friend?",
+      type: {
+        type: DataTypes.ENUM("temporary", "pernament"),
+        allowNull: false,
+      },
+      expired: {
+        type: DataTypes.DATE,
       },
     },
     {
@@ -42,5 +43,5 @@ module.exports = (sequelize, { DataTypes }) => {
     }
   );
 
-  return friendRequest;
+  return friend;
 };
