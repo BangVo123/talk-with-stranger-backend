@@ -21,5 +21,7 @@ router.patch(
   asyncHandler(UserController.updateUserBackground)
 );
 router.patch("/users/me", asyncHandler(UserController.updateMe));
+router.post("/users/block/:userId", asyncHandler(UserController.blockUser));
+router.get("/users/block", asyncHandler(UserController.getBlockList));
 
 module.exports = router;

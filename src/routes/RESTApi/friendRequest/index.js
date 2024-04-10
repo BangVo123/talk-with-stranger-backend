@@ -4,12 +4,14 @@ const express = require("express");
 const asyncHandler = require("../../../helpers/asyncHandler");
 const FriendRequestController = require("../../../controller/friendRequest.controller");
 const authentication = require("../../../middlewares/authentication");
+const checkBlock = require("../../../middlewares/checkBlock");
 const router = express.Router();
 
 router.use("/friendRequest", authentication);
 
 router.post(
   "/friendRequest/:receiverId",
+  asyncHandler(checkBlock("receiverId")),
   asyncHandler(FriendRequestController.sendFriendRequest)
 );
 

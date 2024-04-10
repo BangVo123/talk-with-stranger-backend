@@ -76,8 +76,8 @@ class DB {
   }
 
   async sync() {
-    await this.dropOldFkConstraints();
-    await this.dropOldIndexes();
+    // await this.dropOldFkConstraints();
+    // await this.dropOldIndexes();
     await this.sequelize.sync({ alter: true });
   }
 
