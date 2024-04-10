@@ -113,15 +113,21 @@ class FriendRequestService {
   };
 
   //get pending friend request
-  static getPendingFriendRequest = async (userId) => {
-    console.log("get pending friend request");
-    const pendingFriendRequest = await db.FriendRequest.findAll({
+  static getPendingFriendRequest = async ({ userId, query }) => {
+    const pageNum = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const resultPendingFriendRequest = await db.FriendRequest.findAndCountAll({
       where: {
         [Op.and]: [{ receiver_id: userId }],
       },
+      offset: (pageNum - 1) * limit,
+      limit,
     });
 
-    return pendingFriendRequest;
+    return {
+      data: resultPendingFriendRequest.rows,
+      totalPage: Math.ceil(resultPendingFriendRequest.count / limit),
+    };
   };
 }
 

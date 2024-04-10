@@ -97,6 +97,66 @@ class UserService {
 
     return updatedUser;
   };
+
+  static blockUser = async ({ blockerId, blockedId, body }) => {
+    const foundUser = await db.User.findOne({
+      where: {
+        id: blockedId,
+      },
+    });
+
+    if (!foundUser) throw new BadRequestError("User not exists");
+
+    const foundBlock = await db.Block.findOne({
+      where: {
+        blocker_id: blockerId,
+        blocked_id: blockedId,
+      },
+    });
+
+    if (foundBlock) throw new BadRequestError("User has been block");
+
+    if (blockedId === blockerId)
+      throw new BadRequestError("You can not block yourself");
+
+    const obj = { type: body.type };
+
+    if (body.type === "temporary") {
+      if (!body.expired)
+        throw new BadRequestError("Please provide expired date");
+      else {
+        if (new Date(body.expired) < new Date())
+          throw new BadRequestError("Expired date not valid");
+      }
+      obj.expired = body.expired;
+    }
+
+    await db.Block.create({
+      blocker_id: blockerId,
+      blocked_id: blockedId,
+      ...obj,
+    });
+
+    return null;
+  };
+
+  static getBlockList = async ({ userId, query }) => {
+    const pageNum = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+
+    const blockList = await db.Block.findAndCountAll({
+      where: {
+        blocker_id: userId,
+      },
+      offset: (pageNum - 1) * limit,
+      limit,
+    });
+
+    return {
+      data: blockList.rows,
+      totalPage: Math.ceil(blockList.count / limit),
+    };
+  };
 }
 
 module.exports = UserService;

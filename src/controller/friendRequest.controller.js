@@ -54,9 +54,10 @@ class FriendRequestController {
   static getPendingFriendRequest = async (req, res, next) => {
     new SuccessResponse({
       message: "Get all pending friend request success",
-      metadata: await FriendRequestService.getPendingFriendRequest(
-        req.user.userId
-      ),
+      metadata: await FriendRequestService.getPendingFriendRequest({
+        userId: req.user.userId,
+        query: req.query,
+      }),
     }).send(res);
   };
 }

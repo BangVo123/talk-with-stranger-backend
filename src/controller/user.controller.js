@@ -38,6 +38,27 @@ class UserController {
       }),
     }).send(res);
   };
+
+  static blockUser = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Block success",
+      metadata: await UserService.blockUser({
+        blockerId: req.user.userId,
+        blockedId: req.params.userId,
+        body: req.body,
+      }),
+    }).send(res);
+  };
+
+  static getBlockList = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Block success",
+      metadata: await UserService.getBlockList({
+        userId: req.user.userId,
+        query: req.query,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = UserController;

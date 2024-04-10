@@ -1,10 +1,10 @@
 "use strict";
 
-const TABLE_NAME = "friend";
+const TABLE_NAME = "block";
 
 module.exports = (sequelize, { DataTypes }) => {
-  const friend = sequelize.define(
-    "Friend",
+  const block = sequelize.define(
+    "Block",
     {
       id: {
         type: DataTypes.UUID,
@@ -43,5 +43,5 @@ module.exports = (sequelize, { DataTypes }) => {
     }
   );
 
-  return friend;
+  return block;
 };
