@@ -10,5 +10,6 @@ router.use("/api/v1", require("./country"));
 router.use("/api/v1", require("./user"));
 router.use("/api/v1", require("./friendRequest"));
 router.use("/api/v1", require("./friend"));
+router.use("/api/v1", require("./conservation"));
 
 module.exports = router;

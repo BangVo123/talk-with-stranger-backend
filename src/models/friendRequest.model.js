@@ -34,7 +34,7 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       greeting_text: {
         type: DataTypes.STRING,
-        default: "Hello, want to make friend?",
+        defaultValue: "Hello, want to make friend?",
       },
     },
     {
