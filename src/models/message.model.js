@@ -33,7 +33,7 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       type: {
         type: DataTypes.ENUM("text", "images", "files", "audio", "video"),
-        default: "text",
+        defaultValue: "text",
       },
       text: {
         type: DataTypes.STRING(256),
