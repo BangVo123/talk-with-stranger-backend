@@ -26,16 +26,16 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       user_status: {
         type: DataTypes.ENUM("ACTIVE", "BLOCKED"),
-        default: "ACTIVE",
+        defaultValue: "ACTIVE",
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,
-        default: false,
+        defaultValue: false,
       },
       user_gender: {
         type: DataTypes.ENUM("male", "female", "other"),
         allowNull: false,
-        default: "male",
+        defaultValue: "male",
       },
       user_email: {
         type: DataTypes.STRING(100),
@@ -55,7 +55,7 @@ module.exports = (sequelize, { DataTypes }) => {
       user_major: DataTypes.STRING(20),
       user_role: {
         type: DataTypes.ENUM("user", "admin"),
-        default: "user",
+        defaultValue: "user",
       },
       user_dob: {
         type: DataTypes.DATE,

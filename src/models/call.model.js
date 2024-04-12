@@ -23,7 +23,7 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       startedAt: {
         type: DataTypes.DATE,
-        default: Date.now(),
+        defaultValue: new Date(),
       },
       endedAt: {
         type: DataTypes.DATE,
