@@ -9,10 +9,10 @@ const checkBlock = (paramsName) => {
   return async (req, res, next) => {
     const foundBlock = await db.Block.findOne({
       where: {
-        sender_id: {
+        blocker_id: {
           [Op.or]: [req.user.userId, req.params[paramsName]],
         },
-        receiver_id: {
+        blocked_id: {
           [Op.or]: [req.user.userId, req.params[paramsName]],
         },
       },

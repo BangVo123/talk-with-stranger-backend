@@ -31,7 +31,7 @@ router.patch(
 );
 
 router.get(
-  "/friendRequest/pending",
+  "/friendRequest",
   asyncHandler(FriendRequestController.getPendingFriendRequest)
 );
 

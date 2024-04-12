@@ -8,6 +8,7 @@ const {
   InternalServerError,
 } = require("../core/error.response");
 const db = require("../db/init.mysql");
+const { pickDataInfo, removeKeys } = require("../utils");
 
 /**
  * send friend request
@@ -86,12 +87,12 @@ class FriendRequestService {
 
     await foundFriendRequest.destroy();
 
-    const newFriend = await FriendService.createFriend({
-      senderId: foundFriendRequest.serder_id,
-      receiverId: userId,
-    });
+    // const newFriend = await FriendService.createFriend({
+    //   senderId: foundFriendRequest.serder_id,
+    //   receiverId: userId,
+    // });
 
-    if (!newFriend) throw new InternalServerError("Something went wrong");
+    // if (!newFriend) throw new InternalServerError("Something went wrong");
 
     return null;
   };
@@ -116,6 +117,7 @@ class FriendRequestService {
   static getPendingFriendRequest = async ({ userId, query }) => {
     const pageNum = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
+
     const resultPendingFriendRequest = await db.FriendRequest.findAndCountAll({
       where: {
         [Op.and]: [{ receiver_id: userId }],
@@ -124,8 +126,42 @@ class FriendRequestService {
       limit,
     });
 
+    const resultDataPending = resultPendingFriendRequest.rows.map(
+      async (friendReq) => {
+        const relatedUser = await db.User.findOne({
+          where: {
+            id: friendReq.sender_id,
+          },
+        });
+
+        return {
+          ...removeKeys(friendReq.toJSON(), [
+            "createdAt",
+            "updatedAt",
+            "sender_id",
+          ]),
+          sender: pickDataInfo(relatedUser.toJSON(), [
+            "id",
+            "user_first_name",
+            "user_last_name",
+            "user_email",
+            "user_avatar",
+            "user_background",
+            "user_description",
+            "user_major",
+            "user_role",
+            "user_dob",
+            "user_gender",
+            "user_country",
+          ]),
+        };
+      }
+    );
+
+    const resultDataResolve = await Promise.all(resultDataPending);
+
     return {
-      data: resultPendingFriendRequest.rows,
+      data: resultDataResolve,
       totalPage: Math.ceil(resultPendingFriendRequest.count / limit),
     };
   };

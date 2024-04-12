@@ -102,7 +102,7 @@ module.exports = (sequelize, { DataTypes }) => {
         },
         beforeUpdate: async function (model) {
           if (typeof model?.user_country === "object") {
-            model.user_country = model.user_country.id;
+            model.user_country = model.user_country?.id;
           }
         },
       },
