@@ -12,19 +12,7 @@ class ConservationService {
   static createConservation = async ({ userId, body }) => {
     const memberIds = body.members;
 
-    const userFound = await db.User.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!userFound) throw new BadRequestError("You are not registered");
-
-    const remainingMembersExceptUser = memberIds.filter(
-      (mid) => mid !== userId
-    );
-
-    const pendingCheck = remainingMembersExceptUser.map(async (mid) => {
+    const pendingCheck = memberIds.map(async (mid) => {
       const foundAnother = await db.User.findOne({
         where: {
           id: mid,
@@ -49,7 +37,6 @@ class ConservationService {
       user_id: m.id,
       conservation: insertedConservation.id,
     }));
-    console.log(insertDataSet);
 
     await db.Member.bulkCreate(insertDataSet);
 
