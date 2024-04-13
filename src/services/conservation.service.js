@@ -12,8 +12,11 @@ const db = require("../db/init.mysql");
 class ConservationService {
   static createConservation = async ({ userId, body }) => {
     const memberIds = body.members;
+    const memberIdsSet = new Set(memberIds);
 
-    const pendingCheck = memberIds.map(async (mid) => {
+    memberIdsSet.add(userId);
+
+    const pendingCheck = Array.from(memberIdsSet).map(async (mid) => {
       const foundAnother = await db.User.findOne({
         where: {
           id: mid,
@@ -30,7 +33,7 @@ class ConservationService {
     }
 
     const insertedConservation = await db.Conservation.create({
-      creator: userFound.id,
+      creator: userId,
       type: body.type,
     });
 
@@ -116,75 +119,66 @@ class ConservationService {
     return null;
   };
 
-  static getFriendConservation = async (userId) => {
-    // const conservationList = await db.Conservation.findAll({
-    //   include: [
-    //     {
-    //       model: Member,
-    //       where: (user_id = userId),
-    //     },
-    //   ],
-    // });
-
-    //Lấy ra list conservatoin, lặp qua mảng rồi lấy thông tin tương ứng từ conservation id
-
-    const friendList = await db.Friend.findAll({
-      where: {
-        [Op.or]: [{ sender_id: userId }, { receiver_id: userId }],
-      },
-    });
-  };
-
   static getConservations = async ({ userId, query }) => {
     const pageNum = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
 
-    // const joinedConservation = await db.Conservation.findAndCountAll({
-    //   attribute: ["id", "creator", "type", "message_count", "call_count"],
-    //   where: {
-    //     is_deleted: false,
-    //   },
-    //   include: [
-    //     {
-    //       model: Member,
-    //       where: {
-    //         id: userId,
-    //       },
-    //     },
-    //   ],
-    //   offset: (pageNum - 1) * limit,
-    //   limit,
-    // });
-
-    const joinedConservation = await db.sequelize.query(
-      "SELECT * FROM conservation c JOIN member m ON c.id = m.conservation WHERE m.user_id = :userId LIMIT :limit OFFSET :offset",
+    const memberConservation = await db.sequelize.query(
+      "SELECT * FROM conservation c JOIN member m ON c.id = m.conservation WHERE m.user_id = :userId AND is_deleted = :isDeleted LIMIT :limit OFFSET :offset",
       {
         type: QueryTypes.SELECT,
         replacements: {
           userId: userId,
+          isDeleted: false,
           limit,
           offset: (pageNum - 1) * limit,
         },
       }
     );
-    return joinedConservation;
+
+    const conservations = memberConservation.map((mc) => {
+      return {
+        id: mc.conservation,
+        type: mc.type,
+        callCount: mc.call_count,
+        messageCount: mc.message_count,
+        creatorId: mc.creator,
+      };
+    });
+
+    const conservationMembers = await Promise.all(
+      conservations.map(async (c) => {
+        const members = await db.sequelize.query(
+          "SELECT u.user_description, u.user_first_name, u.user_last_name, u.user_email, u.user_avatar, u.user_gender, u.user_dob FROM conservation c JOIN member m ON c.id = m.conservation JOIN user u ON m.user_id = u.id WHERE c.id = :conservationId",
+          {
+            type: QueryTypes.SELECT,
+            replacements: {
+              conservationId: c.id,
+            },
+          }
+        );
+
+        const lastestMessage = await db.Message.findOne({
+          where: {
+            conservation: c.id,
+          },
+          order: [["created_at", "DESC"]],
+        });
+        // fix count
+        return {
+          ...c,
+          lastestMessage,
+          members: members,
+        };
+      })
+    );
+
+    return {
+      data: conservationMembers.sort(
+        (a, b) => b.lastestMessage?.created_at - a.lastestMessage?.created_at
+      ),
+    };
   };
 }
 
 module.exports = ConservationService;
-
-/**
- *
- *  -- creator cũm là 1 member - sửa thêm member
- * group thì name và avt mặc định của creator, sửa thì sửa lại
- * one_to_one thì name và avt mặc định là của friend
- * -- Khả năng là sửa lại lúc accept friend request
- *
- * getAllConservation -- chia làm 2 mảng kết quả
- *
- * Lấy từ userId -> memberId -> conservationId -> type
- *
- * Xử lý 2 lọai type ra 2 mảng khác nhau, nối 2 mảng lại với nhau sau đó sort lại rồi trả cho fe
- *
- *
- */
