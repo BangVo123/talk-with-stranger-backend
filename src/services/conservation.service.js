@@ -1,5 +1,6 @@
 "use strict";
 
+const { where, QueryTypes } = require("sequelize");
 const {
   BadRequestError,
   NotFoundError,
@@ -128,28 +129,58 @@ class ConservationService {
     return null;
   };
 
+  static getFriendConservation = async (userId) => {
+    // const conservationList = await db.Conservation.findAll({
+    //   include: [
+    //     {
+    //       model: Member,
+    //       where: (user_id = userId),
+    //     },
+    //   ],
+    // });
+
+    //Lấy ra list conservatoin, lặp qua mảng rồi lấy thông tin tương ứng từ conservation id
+
+    const friendList = await db.Friend.findAll({
+      where: {
+        [Op.or]: [{ sender_id: userId }, { receiver_id: userId }],
+      },
+    });
+  };
+
   static getConservations = async ({ userId, query }) => {
     const pageNum = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
 
-    const joinedConservation = await db.Conservation.findAndCountAll({
-      attribute: ["id", "creator", "type", "message_count", "call_count"],
-      where: {
-        is_deleted: false,
-      },
-      include: [
-        {
-          model: Member,
-          where: {
-            id: userId,
-          },
-        },
-      ],
-      offset: (pageNum - 1) * limit,
-      limit,
-    });
+    // const joinedConservation = await db.Conservation.findAndCountAll({
+    //   attribute: ["id", "creator", "type", "message_count", "call_count"],
+    //   where: {
+    //     is_deleted: false,
+    //   },
+    //   include: [
+    //     {
+    //       model: Member,
+    //       where: {
+    //         id: userId,
+    //       },
+    //     },
+    //   ],
+    //   offset: (pageNum - 1) * limit,
+    //   limit,
+    // });
 
-    console.log(joinedConservation);
+    const joinedConservation = await db.sequelize.query(
+      "SELECT * FROM conservation c JOIN member m ON c.id = m.conservation WHERE m.user_id = :userId LIMIT :limit OFFSET :offset",
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          userId: userId,
+          limit,
+          offset: (pageNum - 1) * limit,
+        },
+      }
+    );
+    return joinedConservation;
   };
 }
 

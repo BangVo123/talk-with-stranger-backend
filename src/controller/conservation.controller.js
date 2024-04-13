@@ -17,7 +17,7 @@ class ConservationController {
   static getConservation = async (req, res, next) => {
     new SuccessResponse({
       message: "Get all conservation success",
-      metadata: await ConservationService.getConservation({
+      metadata: await ConservationService.getConservations({
         userId: req.user.userId,
         query: req.query,
       }),
