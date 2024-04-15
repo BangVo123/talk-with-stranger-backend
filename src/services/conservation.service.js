@@ -136,6 +136,17 @@ class ConservationService {
       }
     );
 
+    const conservationCount = await db.sequelize.query(
+      "SELECT COUNT(c.id) as conservationCnt FROM conservation c JOIN member m ON c.id = m.conservation WHERE m.user_id = :userId AND is_deleted = :isDeleted",
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          userId: userId,
+          isDeleted: false,
+        },
+      }
+    );
+
     const conservations = memberConservation.map((mc) => {
       return {
         id: mc.conservation,
@@ -149,7 +160,7 @@ class ConservationService {
     const conservationMembers = await Promise.all(
       conservations.map(async (c) => {
         const members = await db.sequelize.query(
-          "SELECT u.user_description, u.user_first_name, u.user_last_name, u.user_email, u.user_avatar, u.user_gender, u.user_dob FROM conservation c JOIN member m ON c.id = m.conservation JOIN user u ON m.user_id = u.id WHERE c.id = :conservationId",
+          "SELECT u.id, u.user_description, u.user_first_name, u.user_last_name, u.user_email, u.user_avatar, u.user_gender, u.user_dob FROM conservation c JOIN member m ON c.id = m.conservation JOIN user u ON m.user_id = u.id WHERE c.id = :conservationId",
           {
             type: QueryTypes.SELECT,
             replacements: {
@@ -164,7 +175,7 @@ class ConservationService {
           },
           order: [["created_at", "DESC"]],
         });
-        // fix count
+
         return {
           ...c,
           lastestMessage,
@@ -177,6 +188,7 @@ class ConservationService {
       data: conservationMembers.sort(
         (a, b) => b.lastestMessage?.created_at - a.lastestMessage?.created_at
       ),
+      totalPage: Math.ceil(conservationCount.conservationCnt || 0 / limit),
     };
   };
 }

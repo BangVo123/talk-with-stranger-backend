@@ -6,9 +6,12 @@ const {
   NotFoundError,
   ForbiddenError,
   InternalServerError,
+  ConflictError,
 } = require("../core/error.response");
 const db = require("../db/init.mysql");
 const { pickDataInfo, removeKeys } = require("../utils");
+const ConservationService = require("./conservation.service");
+const FriendService = require("./friend.service");
 
 /**
  * send friend request
@@ -19,14 +22,34 @@ const { pickDataInfo, removeKeys } = require("../utils");
 class FriendRequestService {
   //sender_action
   static addFriend = async ({ senderId, receiverId, body }) => {
-    const foundFriendRequest = await db.FriendRequest.findOne({
+    const foundFriend = await db.Friend.findOne({
       where: {
-        sender_id: senderId,
-        receiver_id: receiverId,
+        sender_id: {
+          [Op.or]: [senderId, receiverId],
+        },
+        receiver_id: {
+          [Op.or]: [senderId, receiverId],
+        },
       },
     });
 
-    if (foundFriendRequest) return null;
+    if (foundFriend) throw new ConflictError("You're already been friend");
+
+    const foundFriendRequest = await db.FriendRequest.findOne({
+      where: {
+        sender_id: {
+          [Op.or]: [senderId, receiverId],
+        },
+        receiver_id: {
+          [Op.or]: [senderId, receiverId],
+        },
+      },
+    });
+
+    if (foundFriendRequest)
+      throw new ConflictError(
+        "You already have a friend request with this user"
+      );
 
     const foundReceiver = await db.User.findOne({
       where: {
@@ -87,12 +110,20 @@ class FriendRequestService {
 
     await foundFriendRequest.destroy();
 
-    // const newFriend = await FriendService.createFriend({
-    //   senderId: foundFriendRequest.serder_id,
-    //   receiverId: userId,
-    // });
+    const newFriend = await FriendService.createFriend({
+      senderId: foundFriendRequest.sender_id,
+      receiverId: userId,
+    });
 
-    // if (!newFriend) throw new InternalServerError("Something went wrong");
+    if (!newFriend) throw new InternalServerError("Something went wrong");
+
+    const newConservation = await ConservationService.createConservation({
+      userId: userId,
+      body: {
+        type: "one_to_one",
+        members: [foundFriendRequest.sender_id],
+      },
+    });
 
     return null;
   };
