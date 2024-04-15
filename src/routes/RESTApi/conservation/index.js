@@ -16,5 +16,9 @@ router.get(
   "/conservations",
   asyncHandler(ConservationController.getConservation)
 );
+router.get(
+  "/conservations/search",
+  asyncHandler(ConservationController.search)
+);
 
 module.exports = router;

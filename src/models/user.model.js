@@ -73,6 +73,13 @@ module.exports = (sequelize, { DataTypes }) => {
     },
     {
       tableName: TABLE_NAME,
+      indexes: [
+        {
+          type: "FULLTEXT",
+          name: "idx_u",
+          fields: ["user_first_name", "user_last_name"],
+        },
+      ],
       hooks: {
         afterFind: async function (model) {
           if (model?.user_country) {
