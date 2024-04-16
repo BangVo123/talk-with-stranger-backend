@@ -44,6 +44,13 @@ module.exports = (sequelize, { DataTypes }) => {
     },
     {
       tableName: TABLE_NAME,
+      indexes: [
+        {
+          type: "FULLTEXT",
+          name: "idx_m",
+          fields: ["text"],
+        },
+      ],
       hooks: {
         afterCreate: async function (record) {
           const conservation = record.conservation;

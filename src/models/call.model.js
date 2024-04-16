@@ -1,6 +1,7 @@
 "use strict";
 
 const TABLE_NAME = "calls";
+const db = require("../db/init.mysql");
 
 module.exports = (sequelize, { DataTypes }) => {
   const call = sequelize.define(
@@ -27,6 +28,13 @@ module.exports = (sequelize, { DataTypes }) => {
       },
       endedAt: {
         type: DataTypes.DATE,
+      },
+      caller: {
+        type: DataTypes.UUID,
+        references: {
+          model: "user",
+          key: "id",
+        },
       },
     },
     {

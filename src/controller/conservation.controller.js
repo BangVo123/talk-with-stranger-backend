@@ -23,6 +23,16 @@ class ConservationController {
       }),
     }).send(res);
   };
+
+  static search = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Search conservation success",
+      metadata: await ConservationService.search({
+        userId: req.user.userId,
+        query: req.query,
+      }),
+    }).send(res);
+  };
 }
 
 module.exports = ConservationController;
