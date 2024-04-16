@@ -14,4 +14,5 @@ module.exports = (io) => {
   };
 
   io.on("connection", onConnection);
+  // io.use((socket, next) => {});
 };

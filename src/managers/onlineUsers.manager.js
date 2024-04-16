@@ -4,27 +4,18 @@ const { InsufficientStorageError } = require("../core/error.response");
 const { removeKeys } = require("../utils");
 
 class OnlineUserManager {
-  ready = "READY";
-  pending = "PENDING";
-  disconected = "DISCONNECTED";
-  maxQueueSize = 2;
+  MAX_QUEUE_SIZE = 2;
 
   userConnections = [];
   pairingQueue = [];
 
   addConnection(connection) {
-    this.userConnections.push({ ...connection, readyToPair: false });
-  }
-
-  setCallState(userId, state) {
-    const user = this.userConnections.find((u) => u.userId === userId);
-    if (!user) return;
-    user.callState = state;
+    this.userConnections.push(connection);
   }
 
   removeConnection(userId) {
     this.userConnections.splice(
-      this.userConnections.indexOf((c) => c.userId === userId),
+      this.userConnections.indexOf((c) => c.id === userId),
       1
     );
   }
@@ -48,13 +39,9 @@ class OnlineUserManager {
      * }
      */
     if (this.pairingQueue.find((u) => u.userId === userInfo.userId)) return;
-
     this.pairingQueue.push(userInfo);
 
-    console.log(this.pairingQueue.map((u) => u.userName));
-
-    if (this.pairingQueue.length >= this.maxQueueSize) {
-      console.log("pairing");
+    if (this.pairingQueue.length >= this.MAX_QUEUE_SIZE) {
       const user1 = this.pairingQueue.shift();
       const user2 = this.pairingQueue.shift();
       const roomId = `room-${Date.now()}`;
@@ -80,7 +67,6 @@ class OnlineUserManager {
         1
       );
     }
-    console.log(this.pairingQueue.map((u) => u.userName));
   }
 }
 

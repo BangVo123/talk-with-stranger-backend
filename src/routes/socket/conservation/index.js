@@ -4,6 +4,7 @@ const OnlineUserManager = require("../../../managers/onlineUsers.manager");
 
 module.exports = (socket) => {
   socket.on("conservation/findRandom", (payload) => {
+    console.log("Start finding random users...");
     OnlineUserManager.addConnectionToPairingQueue({ ...payload, socket });
   });
 
@@ -18,5 +19,15 @@ module.exports = (socket) => {
     Array.from(roomSockets).forEach((socketId) => {
       global._io.sockets.sockets.get(socketId).leave(roomId);
     });
+  });
+
+  socket.on("conservation/setup", (conservationId) => {
+    console.log(`socket ${socket.id} joins ${conservationId}`);
+    socket.join(conservationId);
+  });
+
+  socket.on("conservation/leaveChatRoom", async (conservationId) => {
+    console.log(`socket ${socket.id} leaves ${conservationId}`);
+    socket.leave(conservationId);
   });
 };

@@ -1,10 +1,10 @@
 "use strict";
 
-// process.on("uncaughtException", (e) => {
-//   console.log(`Uncaught Exception::${e}`);
-//   console.log("Process will exit...");
-//   process.exit(1);
-// });
+process.on("uncaughtException", (e) => {
+  console.log(`Uncaught Exception::${e}`);
+  console.log("Process will exit...");
+  process.exit(1);
+});
 
 const app = require("./src/app");
 const {
@@ -26,14 +26,14 @@ require("./src/socket/socket.init")(io);
 
 global._io = io;
 
-// process.on("unhandledRejection", (e) => {
-//   console.log("Unhandled rejection::" + e.message);
-//   console.log("Server is shutting down");
+process.on("unhandledRejection", (e) => {
+  console.log("Unhandled rejection::" + e.message);
+  console.log("Server is shutting down");
 
-//   serverInstance.close(() => {
-//     process.exit(1);
-//   });
-// });
+  serverInstance.close(() => {
+    process.exit(1);
+  });
+});
 
 process.on("SIGINT", () => {
   console.log("Ctrl c deteted app is closing");

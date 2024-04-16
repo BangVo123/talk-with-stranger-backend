@@ -3,7 +3,10 @@
 const express = require("express");
 const asyncHandler = require("../../../helpers/asyncHandler");
 const FriendController = require("../../../controller/friend.controller");
+const authentication = require("../../../middlewares/authentication");
 const router = express.Router();
+
+router.use(authentication);
 
 router.delete("/friend/:friendId", asyncHandler(FriendController.unFriend));
 
