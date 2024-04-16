@@ -12,5 +12,6 @@ router.use("/api/v1", require("./friendRequest"));
 router.use("/api/v1", require("./friend"));
 router.use("/api/v1", require("./conservation"));
 router.use("/api/v1", require("./message"));
+router.use("/api/v1", require("./call"));
 
 module.exports = router;

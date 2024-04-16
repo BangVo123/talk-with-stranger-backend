@@ -191,6 +191,40 @@ class ConservationService {
       totalPage: Math.ceil(conservationCount.conservationCnt || 0 / limit),
     };
   };
+
+  static search = async ({ userId, query }) => {
+    const pageNum = parseInt(query.page) | 1;
+    const limit = parseInt(query.limit) | 10;
+    const text = query.text | "";
+
+    const foundConservations = await db.sequelize.query(
+      `
+      SELECT u.user_first_name, u.user_last_name, u.user_avatar, c.id as conservation_id 
+      FROM user u JOIN member m on m.user_id = u.id 
+      JOIN conservation c ON c.id = m.conservation 
+      WHERE c.id in (SELECT c.id FROM conservation c 
+                    JOIN member m on c.id = m.conservation 
+                    WHERE m.user_id = :userId and c.type = :type)
+      AND u.id != :userId
+       AND MATCH (u.user_first_name, u.user_last_name) AGAINST( :text IN BOOLEAN MODE) 
+       ORDER BY MATCH (u.user_first_name, u.user_last_name) AGAINST( :text IN BOOLEAN MODE) DESC LIMIT :limit OFFSET :offset
+      `,
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          userId,
+          text: `'${text}*'`,
+          type: `'one_to_one'`,
+          limit,
+          offset: (pageNum - 1) * limit,
+        },
+      }
+    );
+
+    return {
+      data: foundConservations,
+    };
+  };
 }
 
 module.exports = ConservationService;
