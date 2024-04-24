@@ -100,6 +100,37 @@ class ConservationService {
     return null;
   };
 
+  static getConservation = async ({ conservationId }) => {
+    const foundConservation = await db.Conservation.findOne({
+      where: {
+        id: conservationId,
+      },
+    });
+
+    const members = await db.sequelize.query(
+      "SELECT u.id, u.user_description, u.user_first_name, u.user_last_name, u.user_email, u.user_avatar, u.user_gender, u.user_dob FROM conservation c JOIN member m ON c.id = m.conservation JOIN user u ON m.user_id = u.id WHERE c.id = :conservationId",
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          conservationId: foundConservation.id,
+        },
+      }
+    );
+
+    const lastestMessage = await db.Message.findOne({
+      where: {
+        conservation: foundConservation.id,
+      },
+      order: [["created_at", "DESC"]],
+    });
+
+    return {
+      ...foundConservation.toJSON(),
+      members,
+      lastestMessage,
+    };
+  };
+
   static deleteConservation = async ({ conservationId, userId }) => {
     const foundConservation = await db.Conservation.findOne({
       where: {
@@ -193,10 +224,10 @@ class ConservationService {
   };
 
   static search = async ({ userId, query }) => {
-    const pageNum = parseInt(query.page) | 1;
-    const limit = parseInt(query.limit) | 10;
-    const text = query.text | "";
-
+    const pageNum = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const text = query.text || "";
+    console.log(text);
     const foundConservations = await db.sequelize.query(
       `
       SELECT u.user_first_name, u.user_last_name, u.user_avatar, c.id as conservation_id 
@@ -213,8 +244,8 @@ class ConservationService {
         type: QueryTypes.SELECT,
         replacements: {
           userId,
-          text: `'${text}*'`,
-          type: `'one_to_one'`,
+          text: `${text}*`,
+          type: `one_to_one`,
           limit,
           offset: (pageNum - 1) * limit,
         },

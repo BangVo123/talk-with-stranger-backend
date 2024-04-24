@@ -8,10 +8,16 @@ const router = express.Router();
 
 router.use(authentication);
 
-router.delete("/friend/:friendId", asyncHandler(FriendController.unFriend));
+router.delete("/friends/:friendId", asyncHandler(FriendController.unFriend));
 
-router.patch("/blockFriend", asyncHandler(FriendController.blockFriend));
+router.patch(
+  "/friends/blockFriend",
+  asyncHandler(FriendController.blockFriend)
+);
 
-router.patch("/unBlockFriend", asyncHandler(FriendController.unBlockFriend));
+router.patch(
+  "/friends/unBlockFriend",
+  asyncHandler(FriendController.unBlockFriend)
+);
 
 module.exports = router;

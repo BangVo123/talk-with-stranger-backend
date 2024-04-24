@@ -1,13 +1,13 @@
 "use strict";
 
-const OnlineUserManager = require("../../../managers/onlineUsers.manager");
-
 module.exports = (socket) => {
   socket.on("user/connect", (payload) => {
-    OnlineUserManager.addConnection(payload);
+    console.log("User connected");
+    socket.join(payload.id);
   });
 
   socket.on("user/disconnect", (payload) => {
-    OnlineUserManager.removeConnection(payload);
+    console.log("User disconnected");
+    socket.leave(payload.id);
   });
 };

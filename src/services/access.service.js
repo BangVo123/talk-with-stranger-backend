@@ -77,6 +77,7 @@ class AccessService {
     if (!foundOtp) throw new BadRequestError("Your OTP is not valid");
 
     if (!foundOtp.token === otp) throw new BadRequestError("Wrong OTP");
+
     if (new Date() > new Date(foundOtp.expiredAt))
       throw new BadRequestError("Your OTP is expired");
 

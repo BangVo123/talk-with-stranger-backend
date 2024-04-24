@@ -14,11 +14,15 @@ router.post(
 );
 router.get(
   "/conservations",
-  asyncHandler(ConservationController.getConservation)
+  asyncHandler(ConservationController.getConservations)
 );
 router.get(
   "/conservations/search",
   asyncHandler(ConservationController.search)
+);
+router.get(
+  "/conservations/:conservationId",
+  asyncHandler(ConservationController.getConservation)
 );
 
 module.exports = router;

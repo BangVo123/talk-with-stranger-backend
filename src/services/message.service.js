@@ -74,9 +74,9 @@ class MessageService {
       where: {
         conservation: conservationId,
       },
+      order: [["created_at", "DESC"]],
       offset: (page - 1) * limit,
       limit: limit,
-      order: [["created_at", "ASC"]],
     });
 
     const populatedData = await Promise.all(
@@ -101,7 +101,7 @@ class MessageService {
     );
 
     return {
-      data: populatedData,
+      data: populatedData.reverse(),
       totalPage: Math.ceil(count / limit) || 0,
     };
   };

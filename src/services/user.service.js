@@ -76,6 +76,7 @@ class UserService {
         id: userId,
       },
     });
+
     if (!foundUser) throw new NotFoundError("User not found");
 
     const cleanObj = deepCleanObj(

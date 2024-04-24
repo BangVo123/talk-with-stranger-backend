@@ -14,6 +14,16 @@ class FriendService {
     return newFriend;
   };
 
+  static getFriends = async ({ userId }) => {
+    const friends = await db.Friend.findAll({
+      where: {
+        [Op.or]: [{ sender_id: userId }, { receiver_id: userId }],
+      },
+    });
+
+    return friends;
+  };
+
   static unFriend = async ({ userId, friendId }) => {
     const foundFriend = await db.Friend.findOne({
       where: {

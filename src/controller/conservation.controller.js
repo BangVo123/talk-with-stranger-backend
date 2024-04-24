@@ -14,7 +14,7 @@ class ConservationController {
     }).send(res);
   };
 
-  static getConservation = async (req, res, next) => {
+  static getConservations = async (req, res, next) => {
     new SuccessResponse({
       message: "Get all conservation success",
       metadata: await ConservationService.getConservations({
@@ -30,6 +30,15 @@ class ConservationController {
       metadata: await ConservationService.search({
         userId: req.user.userId,
         query: req.query,
+      }),
+    }).send(res);
+  };
+
+  static getConservation = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get conservation successfully",
+      metadata: await ConservationService.getConservation({
+        conservationId: req.params.conservationId,
       }),
     }).send(res);
   };
