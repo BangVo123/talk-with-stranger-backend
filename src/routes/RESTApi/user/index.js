@@ -22,6 +22,14 @@ router.patch(
 );
 router.patch("/users/me", asyncHandler(UserController.updateMe));
 router.post("/users/block/:userId", asyncHandler(UserController.blockUser));
+router.post(
+  "/users/conservations/:conservationId",
+  asyncHandler(UserController.joinConservation)
+);
+router.delete(
+  "/users/conservations/:conservationId",
+  asyncHandler(UserController.leaveConservation)
+);
 router.get("/users/block", asyncHandler(UserController.getBlockList));
 
 module.exports = router;

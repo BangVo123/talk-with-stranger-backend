@@ -3,8 +3,29 @@
 const { Model } = require("sequelize");
 const { SuccessResponse } = require("../core/success.response");
 const UserService = require("../services/user.service");
+const ConservationService = require("../services/conservation.service");
 
 class UserController {
+  static joinConservation = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Join conservation successfully",
+      metadata: await ConservationService.joinConservation({
+        conservationId: req.params.conservationId,
+        userId: req.user.userId,
+      }),
+    }).send(res);
+  };
+
+  static leaveConservation = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Leave conservation successfully",
+      metadata: await ConservationService.leaveConservation({
+        conservationId: req.params.conservationId,
+        userId: req.user.userId,
+      }),
+    }).send(res);
+  };
+
   static getUserInfo = async (req, res, next) => {
     new SuccessResponse({
       message: "Get user info success",

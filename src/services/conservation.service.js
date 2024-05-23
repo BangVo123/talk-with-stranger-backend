@@ -6,6 +6,7 @@ const {
   NotFoundError,
   InternalServerError,
   ForbiddenError,
+  ConflictError,
 } = require("../core/error.response");
 const db = require("../db/init.mysql");
 
@@ -54,8 +55,17 @@ class ConservationService {
         id: conservationId,
       },
     });
-
     if (!foundConservation) throw new BadRequestError("Conservation not found");
+
+    const member = await db.Member.findOne({
+      where: {
+        conservation: conservationId,
+        user_id: userId,
+      },
+    });
+
+    if (member) throw new ConflictError("You already join this conservation");
+
     if (foundConservation.type === "one_to_one")
       throw new BadRequestError("Can not join a private conservation");
 
@@ -64,7 +74,7 @@ class ConservationService {
       conservation: foundConservation.id,
     });
 
-    return null;
+    return foundConservation;
   };
 
   static leaveConservation = async ({ conservationId, userId }) => {
@@ -75,6 +85,16 @@ class ConservationService {
     });
 
     if (!foundConservation) throw new BadRequestError("Conservation not found");
+
+    const member = await db.Member.findOne({
+      where: {
+        conservation: conservationId,
+        user_id: userId,
+      },
+    });
+
+    if (!member) throw new ConflictError("You are not a member");
+
     if (foundConservation.type === "one_to_one")
       throw new BadRequestError("Can not leave conservation");
     if (foundConservation.creator === userId)
@@ -95,9 +115,9 @@ class ConservationService {
     if (memberCount == 1) {
       foundConservation.is_deleted = true;
     }
-    await db.Conservation.save();
+    await foundConservation.save();
 
-    return null;
+    return foundConservation;
   };
 
   static getConservation = async ({ conservationId }) => {
