@@ -28,7 +28,7 @@ app.use(
 );
 
 // db connection here
-require("./db/init.mysql.js").connect({ log: true });
+require("./db/init.mysql.js").connect({ log: false });
 
 // init firebase app
 require("./firebase/index.js");

@@ -5,7 +5,6 @@ const socketRouter = require("../routes/socket/index");
 module.exports = (io) => {
   const onConnection = function (socket) {
     console.log("A socket connection is established");
-    console.log(socket.request.headers);
     socketRouter(socket);
 
     socket.on("disconnect", function () {
