@@ -39,11 +39,11 @@ module.exports = (sequelize, { DataTypes }) => {
       hooks: {
         beforeCreate: async function (record) {
           const foundConservation = await db.Conservation.findOne({
-            where: record.conservation,
+            where: { id: record.conservation },
           });
 
           if (!foundConservation)
-            throw new BadRequestError("Couldn't find a reservation");
+            throw new BadRequestError("Couldn't find a conservation");
 
           if (foundConservation.type === "one_to_one") {
             const currentMemsCount = await db.Member.count({
